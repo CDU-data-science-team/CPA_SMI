@@ -1,0 +1,3 @@
+## Venn Diagrams of SMI/CPA patient registers
+
+GPs maintain a register of [patients with SMI (Severe Mental Illness)](https://digital.nhs.uk/data-and-information/data-collections-and-data-sets/data-collections/serious-mental-illness-smi) and the Mental Health Trust has patients with [CPA (Care Pathway Approach)](https://www.rethink.org/advice-and-information/living-with-mental-illness/treatment-and-support/care-programme-approach-cpa/). Combining the data together makes it possible to plot where patients are on both registers. For Nottinghamshire Healthcare NHS Foundation Trust this was originally done at a Trust level through a system called GP Repository for Clinical Care (GPRCC) and over time this request has expanded to PCNs and CCG level.

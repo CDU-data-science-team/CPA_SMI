@@ -1,0 +1,167 @@
+---
+title: "Care Programme Approach and SMI Registers"
+author: "Zoë Turner (originally created by Ian Bowns, Public Health Consultant)"
+date: "`r Sys.Date()`"
+output:
+  html_document:
+    df_print: paged
+subtitle: Nottinghamshire Healthcare NHS Foundation Trust
+---
+
+```{r setup, include = FALSE}
+
+knitr::opts_chunk$set(echo = FALSE, 
+                      message = FALSE, 
+                      warning = FALSE, 
+                      results = 'asis', 
+                      fig.width = 10, 
+                      fig.height = 4, 
+                      fig.fullwidth = TRUE)
+
+# Loads relevant libraries
+
+library(eulerr)
+library(dplyr)
+library(tidyr)
+library(pander)
+
+source('data_functions.R')
+
+total_names <- c("A","B","C","A&B","A&C")
+
+all_names <- c("SMI Total","Trust CPA Total","Trust non-CPA total")
+
+date <- "January 2022"
+
+```
+
+
+```{r PCNFunctions}
+
+# Venn charts
+
+Venn_Function <- function(values, title){
+    
+    set.seed(2)
+    
+  total_fit <- euler(values, shape = "ellipse")
+
+    plot(total_fit, quantities = TRUE,
+        main = paste(orgFeed),
+           legend = list(labels = c("SMI", "Trust CPA", "Trust non-CPA")))
+ 
+}
+
+# Data
+
+dataVenn_function <- function(df, name){
+
+  vennData <- df %>% 
+    filter(Group == name) %>% 
+    select(A, B, C, `A&B`, `A&C`) %>% 
+    pivot_longer(A:`A&C`, names_to = 'n') %>% 
+    pull(value)
+  
+  names(vennData) <- total_names
+  
+  # select data for table
+  tableData <- df %>% 
+    filter(Group == name) %>% 
+    select(`SMI Total` = smi_count, 
+           `Trust CPA Total` = cpa_count,
+           `Trust non-CPA total` = mental_health_patients 
+    )
+  
+  names(tableData) <- all_names
+
+  # List several data objects from a function
+  return(list(vennData,tableData))
+  
+  
+}
+
+```
+
+### Details have been omitted in order to share this publicly.
+
+## Overlap between Trust patients and primary care SMI registers
+
+The following charts demonstrate the overlap between the Trust's patients in receipt of secondary mental health services and the severe mental illness registers (SMI) in primary care. Overlaps are shown for patients in receipt of the care programme approach (CPA) and non-CPA patients. The analysis was conducted on the data within the GP repository for clinical care (GPRCC) for `r date` by Active Trust patients with an open referral to the Trust.
+
+Breakdowns of this data is for PCNs (Primary Care Networks) and grouped by CCG.
+
+## Overall {.tabset .tabset-fade}
+
+### All Patients 
+
+```{r AllPatients}
+
+# the {euler} function produces a list with [1] being the venn chart and [2] 
+# the data which is formatted in this function to a pandoc.table.
+
+Venn_FunctionTotal <- function(values){
+    
+    set.seed(2)
+    
+  total_fit <- euler(values, shape = "ellipse")
+
+    plot(total_fit, quantities = TRUE,
+         main = "Total",
+         legend = list(labels = c("SMI", "Trust CPA", "Trust non-CPA")))
+ 
+}
+
+total <- dataVenn_function(allPatientsTotal, "Total")
+
+Venn_FunctionTotal(total[[1]])
+
+pandoc.table(total[[2]], style = 'simple')
+
+```
+
+### PCNs
+
+```{r PCNLoop}
+
+for(orgFeed in allPatientsData$Group){
+  
+
+org <- dataVenn_function(allPatientsData, orgFeed)
+
+Venn <- Venn_Function(org[[1]])
+
+print(Venn)
+
+cat('\n')
+
+pandoc.table(org[[2]], style = 'simple')
+  
+}
+
+
+```
+
+
+### CCGs
+
+```{r CCGLoop}
+
+for(orgFeed in allPatientsDataCCG$Group){
+  
+
+org <- dataVenn_function(allPatientsDataCCG, orgFeed)
+
+Venn <- Venn_Function(org[[1]])
+
+  print(Venn)
+
+cat('\n')
+
+pandoc.table(org[[2]], style = 'simple')
+
+}
+
+
+```
+
+
